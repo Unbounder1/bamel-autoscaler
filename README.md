@@ -1,5 +1,7 @@
 # bamel-autoscaler
 
+# IN PROGRESS, NOT FUNCTIONAL
+
 A bare-metal Kubernetes autoscaler that dynamically manages physical server resources based on workload demands. Unlike cloud-based autoscalers that provision virtual instances, bamel-autoscaler controls physical hardware through BMC interfaces to power on/off servers as needed.
 
 ## Overview
