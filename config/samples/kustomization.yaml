@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- bamel_v1_nodepool.yaml
+- bamel_v1_baremetalnode.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

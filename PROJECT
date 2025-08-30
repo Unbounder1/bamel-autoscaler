@@ -7,4 +7,23 @@ layout:
 - go.kubebuilder.io/v4
 projectName: bamel-autoscaler
 repo: github.com/Unbounder1/bamel-autoscaler
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: baremetal.io
+  group: bamel
+  kind: NodePool
+  path: github.com/Unbounder1/bamel-autoscaler/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: baremetal.io
+  group: bamel
+  kind: BareMetalNode
+  path: github.com/Unbounder1/bamel-autoscaler/api/v1
+  version: v1
 version: "3"

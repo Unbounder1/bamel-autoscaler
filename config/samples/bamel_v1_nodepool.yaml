@@ -1,0 +1,9 @@
+apiVersion: bamel.baremetal.io/v1
+kind: NodePool
+metadata:
+  labels:
+    app.kubernetes.io/name: bamel-autoscaler
+    app.kubernetes.io/managed-by: kustomize
+  name: nodepool-sample
+spec:
+  # TODO(user): Add fields here

@@ -1,0 +1,23 @@
+# permissions for end users to view nodepools.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: bamel-autoscaler
+    app.kubernetes.io/managed-by: kustomize
+  name: nodepool-viewer-role
+rules:
+- apiGroups:
+  - bamel.baremetal.io
+  resources:
+  - nodepools
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - bamel.baremetal.io
+  resources:
+  - nodepools/status
+  verbs:
+  - get
