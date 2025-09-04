@@ -160,7 +160,7 @@ type BareMetalNodeStatus struct {
 
 ### etcd Inventory System
 
-The etcd server acts as the central source of truth for all bare-metal node information, decoupled from Kubernetes. This separation allows for better reliability and enables management of nodes that aren't currently part of the cluster.
+The etcd server acts as the central source of truth for all bare-metal node information, decoupled from Kubernetes. This separation allows for better reliability and enables management of nodes that aren't currently part of the cluster.    
 
 #### etcd Schema and Usage
 

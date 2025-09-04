@@ -49,9 +49,12 @@ type BareMetalNodeReconciler struct {
 func (r *BareMetalNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// TODO(user): your logic here
+	node := &bamelv1.BareMetalNode{}
+	if err := r.Get(ctx, req.NamespacedName, node); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
-	return ctrl.Result{}, nil
+	return r.reconcileNode(ctx, node)
 }
 
 // SetupWithManager sets up the controller with the Manager.
