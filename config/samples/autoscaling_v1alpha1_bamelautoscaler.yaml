@@ -1,0 +1,9 @@
+apiVersion: autoscaling.bamel.io/v1alpha1
+kind: BamelAutoscaler
+metadata:
+  labels:
+    app.kubernetes.io/name: bamel-autoscaler
+    app.kubernetes.io/managed-by: kustomize
+  name: bamelautoscaler-sample
+spec:
+  # TODO(user): Add fields here

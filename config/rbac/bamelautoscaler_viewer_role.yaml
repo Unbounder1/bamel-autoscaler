@@ -1,0 +1,23 @@
+# permissions for end users to view bamelautoscalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: bamel-autoscaler
+    app.kubernetes.io/managed-by: kustomize
+  name: bamelautoscaler-viewer-role
+rules:
+- apiGroups:
+  - autoscaling.bamel.io
+  resources:
+  - bamelautoscalers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - autoscaling.bamel.io
+  resources:
+  - bamelautoscalers/status
+  verbs:
+  - get
