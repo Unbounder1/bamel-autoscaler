@@ -1,5 +1,31 @@
 # bamel-autoscaler
-// TODO(user): Add simple overview of use/purpose
+A bare metal autoscaler
+
+## General skeleton
+
+Bare metal autoscaler of kind BamelAutoscaler. 
+
+Controller:
+
+Event triggers:
+
+- ebpf program to determine whether or not the packets coming in from an interface are coming from a certain pod/node, and deal with taints somehow to calculate feasibility
+  - using some kind of layer 4 or 7 whichever one is plausible to determine the desired pod to find the node taint
+Kubelet checks for:
+[nodestatus api](https://pkg.go.dev/k8s.io/api/core/v1#NodeStatus)
+- cpu, memory, storage, storage ephemeral
+- nodephase: pending, running, terminated 
+- 
+
+Reconciliation loop event triggers when a ebpf program determines either network, cpu, or memory pressure increasing, based on some formula
+
+Event trigger updates some overall statistics, based on the rate of change in available resource, pre-compute best match for pressure using some formula like...
+- Based on if the rate is positive or negative, determine which map of machines to use
+- Selecting category based on pressure trigger
+- Based on some score like 1x useful pressure and 0.25x non-useful pressure, determine the best machine that is currently not on to be scheduled to turn on
+- Closest to ideal score machine gets selected and removed or added based on sign
+
+
 
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use
