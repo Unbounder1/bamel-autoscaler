@@ -15,8 +15,34 @@ Bare metal autoscaler of kind BareMetalAutoscaler
 
 ### Machine Inventory Management
 - How is the pool of available machines defined?
-  - 
+```
+server:
+  id: string                      # Physical server identifier
+  power_consumption: float
+  
+  # Power management
+  power_control:
+    method: string                # "ipmi", "redfish", "custom", "cloud-api"
+    bmc_address: string           # BMC/iLO/iDRAC IP address
+    username: string              # Power control credentials
+    password_secret: string       # K8s secret reference
+    interface: string             # "lanplus", "lan", etc. (IPMI specific)
+    timeout: int                  # Seconds to wait for power on
+    
+  # Node inventory
+  nodes: [                        # K8s nodes on this server
+    {
+      id: string                  # Must match K8s node.metadata.name
+      cpu: float
+      memory: float
+      labels: map[string]string
+      taints: [...]
+    }
+  ]
+```
+
 - CRD for BareMetalMachine resources?
+  - 
 - Labels/selectors to match machines to autoscaler instances?
 
 ## Detection & Monitoring
