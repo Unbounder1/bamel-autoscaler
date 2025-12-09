@@ -3,29 +3,118 @@ A bare metal autoscaler
 
 ## General skeleton
 
-Bare metal autoscaler of kind BamelAutoscaler. 
+Bare metal autoscaler of kind BareMetalAutoscaler
 
-Controller:
+## Architecture Components
 
-Event triggers:
+### Custom Resource Definition (API schema, what fields custom resources will have):
+- Spec: 
+- Status:
 
+### Manager (HA setup functionality)
+
+### Machine Inventory Management
+- How is the pool of available machines defined?
+  - 
+- CRD for BareMetalMachine resources?
+- Labels/selectors to match machines to autoscaler instances?
+
+## Detection & Monitoring
+
+### Event Triggers (eBPF-based detection):
 - ebpf program to determine whether or not the packets coming in from an interface are coming from a certain pod/node, and deal with taints somehow to calculate feasibility
   - using some kind of layer 4 or 7 whichever one is plausible to determine the desired pod to find the node taint
-Kubelet checks for:
-[nodestatus api](https://pkg.go.dev/k8s.io/api/core/v1#NodeStatus)
-- cpu, memory, storage, storage ephemeral
-- nodephase: pending, running, terminated 
+- Kubelet checks for: cpu, memory, storage, storage ephemeral
+- Node phase: pending, running, terminated
+
+### Integration: eBPF → Reconcile
+- How does eBPF data trigger a reconcile?
+- Is eBPF running in-cluster or on nodes?
+- How does this integrate with Kubernetes watch/informer pattern?
+
+## Controller Logic
+
+### Watches (Kubernetes Resources)
+- Primary watch:
+- Secondary watches:
+
+### Reconciliation Loop (Reconcile() function):
+
+#### 1. Fetch Current State
 - 
 
-Reconciliation loop event triggers when a ebpf program determines either network, cpu, or memory pressure increasing, based on some formula
+#### 2. Event Trigger Processing
+- Reconciliation loop event triggers when a ebpf program determines either network, cpu, or memory pressure increasing, based on some formula
+- Event trigger updates some overall statistics, based on the rate of change in available resource
 
-Event trigger updates some overall statistics, based on the rate of change in available resource, pre-compute best match for pressure using some formula like...
+#### 3. Decision Logic (Scale Up/Down)
 - Based on if the rate is positive or negative, determine which map of machines to use
 - Selecting category based on pressure trigger
 - Based on some score like 1x useful pressure and 0.25x non-useful pressure, determine the best machine that is currently not on to be scheduled to turn on
 - Closest to ideal score machine gets selected and removed or added based on sign
 
+#### 4. Safety Checks
+- Min/max node counts:
+- Cooldown periods:
+- Rate limiting:
+- Cluster-wide resource thresholds:
 
+#### 5. Scale-Down Safety
+- Pod eviction/draining:
+- PodDisruptionBudgets:
+- Critical workload checks:
+
+### State Tracking
+- Machine lifecycle states (off → powering-on → joining → ready):
+- Prevent duplicate power operations:
+
+## Actuation
+
+### Power Management
+- How do you actually power machines on/off? (IPMI, Redfish, BMC API?)
+- Credential/endpoint management:
+- Power operation failure handling:
+
+### Node Lifecycle After Power-On
+- How does node join cluster?
+- Pre-provisioning? Auto-registration?
+- NotReady state handling:
+- Timeout for machines that won't join:
+
+## Status & Observability
+
+### Status Subresource Updates
+- Current capacity:
+- Pending machines:
+- Last scale event:
+- Conditions:
+
+### Metrics
+-
+
+### Events
+-
+
+### Logs
+-
+
+## Cleanup & Safety
+
+### Finalizers
+- What happens when BareMetalAutoscaler is deleted?
+- Power down managed machines or leave running?
+
+### Error Recovery
+- Machine won't power on:
+- Machine powers on but never joins cluster:
+- Network partitions between controller and BMC:
+
+## Requeue Strategy
+- When to requeue immediately:
+- When to use RequeueAfter:
+- Error handling:
+
+Based on a map 
 
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use
