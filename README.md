@@ -1,11 +1,49 @@
 # bamel-autoscaler
-A bare metal autoscaler
 
-## General skeleton
+A bare metal autoscaler for Kubernetes.
 
-Bare metal autoscaler of kind BareMetalAutoscaler
+---
 
-## Architecture Components
+## Architecture
+
+The bamel-autoscaler uses a **two-controller, two-CRD model** to separate physical machine management from cluster-wide scaling decisions.
+
+### Custom Resource Definitions
+
+| CRD | Purpose |
+|-----|---------|
+| **Server** | Represents a physical bare-metal machine. Defines hardware capacity, power management (IPMI/Redfish), and the Kubernetes nodes it can host. |
+| **BareMetalAutoscaler** | Defines autoscaling policy for a group of Servers. Specifies scaling rules, min/max bounds, and cooldown periods. |
+
+## Scaling Workflow
+
+The two controllers interact through a delegated reconciliation loop:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     AUTOSCALER CONTROLLER                           │
+├─────────────────────────────────────────────────────────────────────┤
+│  1. Detect: Pod pending due to insufficient resources               │
+│  2. Search: List Server CRs for available capacity                  │
+│  3. Match:  Find Server whose template satisfies pod requirements   │
+│  4. Update: Set spec.nodePool.size.desired += 1 on chosen Server    │
+│             (Autoscaler's job is done)                              │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ Server CR updated
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       SERVER CONTROLLER                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  5. Reconcile: Compare spec.desired vs status.nodeCount             │
+│  6. Power On:  Call IPMI/Redfish via management.powerControl        │
+│  7. Wait:      Monitor until node joins cluster and becomes Ready   │
+│  8. Update:    Set status.powerState, status.nodeCount              │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+This separation ensures each controller has a single responsibility—the Autoscaler decides *what* should happen, the Server Controller makes it happen.
+
+---
 
 ### Custom Resource Definition (API schema, what fields custom resources will have):
 - Spec: 
@@ -32,7 +70,16 @@ Bare metal autoscaler of kind BareMetalAutoscaler
 - Is eBPF running in-cluster or on nodes?
 - How does this integrate with Kubernetes watch/informer pattern?
 
-## Controller Logic
+## Controllers
+
+| Controller | Responsibility |
+|------------|----------------|
+| **Server Controller** | Low-level. Ensures physical server state matches the `Server` CR. Executes IPMI calls, manages node lifecycle. |
+| **Autoscaler Controller** | High-level. Watches cluster state (pending pods, utilization). Updates `Server` CRs to declare desired state. Never touches hardware directly. |
+
+---
+
+### Controller Logic
 
 ### Watches (Kubernetes Resources)
 - Primary watch:
@@ -70,10 +117,21 @@ Bare metal autoscaler of kind BareMetalAutoscaler
 
 ## Actuation
 
-### Power Management
-- How do you actually power machines on/off? (IPMI, Redfish, BMC API?)
-- Credential/endpoint management:
-- Power operation failure handling:
+## Power Management
+
+Handled exclusively by the **Server Controller** using the `management.powerControl` spec:
+
+```yaml
+management:
+  powerControl:
+    provider: ipmi          # ipmi | redfish
+    endpoint: "10.0.1.100"
+    credentials:
+      secretName: "bm-001-ipmi"
+```
+
+Credentials are stored in Kubernetes Secrets and referenced by name.
+
 
 ### Node Lifecycle After Power-On
 - How does node join cluster?
